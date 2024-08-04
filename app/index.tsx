@@ -1,5 +1,5 @@
-import { Text, View } from "react-native";
-
+import { View } from "react-native";
+import Login from "./../components/Login.jsx";
 export default function Index() {
   return (
     <View
@@ -7,14 +7,7 @@ export default function Index() {
         flex: 1,
       }}
     >
-      <Text
-        style={{
-          fontSize: 30,
-          fontFamily: "outfit",
-        }}
-      >
-        Edit app/index.tsx to edit this screen.
-      </Text>
+      <Login />
     </View>
   );
 }
