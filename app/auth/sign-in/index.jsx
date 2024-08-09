@@ -1,17 +1,58 @@
-import React from "react";
+import { React, useState } from "react";
 import {
   View,
   Text,
   TextInput,
   StyleSheet,
   TouchableOpacity,
+  Platform,
+  ToastAndroid,
+  Alert,
 } from "react-native";
 import { Colors } from "./../../../constants/Colors";
 import { useRouter } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../../configs/FirebaseConfig";
 
 export default function SignIn() {
   const router = useRouter();
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
+
+  const onSignIn = () => {
+    if (!email || !password) {
+      if (Platform.OS === "android") {
+        ToastAndroid.show(
+          "Please Enter Email & Password..!",
+          ToastAndroid.LONG
+        );
+      } else if (Platform.OS === "ios") {
+        Alert.alert("Alert", "Please Enter Email & Password..!");
+      }
+      return;
+    }
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        console.log(user);
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorMessage, errorCode);
+        if (errorCode == "auth/invalid-credential") {
+          if (Platform.OS === "android") {
+            ToastAndroid.show("Invalid credentials..!", ToastAndroid.LONG);
+          } else if (Platform.OS === "ios") {
+            Alert.alert("Alert", "Invalid credentials..!");
+          }
+        }
+      });
+  };
 
   return (
     <View
@@ -70,6 +111,7 @@ export default function SignIn() {
           placeholder="Please Enter Your Email"
           placeholderTextColor="#7d7d7d"
           style={styles.input}
+          onChangeText={(value) => setEmail(value)}
         />
       </View>
       <View
@@ -89,9 +131,11 @@ export default function SignIn() {
           placeholderTextColor="#7d7d7d"
           secureTextEntry={true}
           style={styles.input}
+          onChangeText={(value) => setPassword(value)}
         />
       </View>
-      <View
+      <TouchableOpacity
+        onPress={onSignIn}
         style={{
           padding: 20,
           backgroundColor: Colors.PRIMARY,
@@ -108,7 +152,7 @@ export default function SignIn() {
         >
           SignIn
         </Text>
-      </View>
+      </TouchableOpacity>
       <TouchableOpacity
         onPress={() => router.push("auth/sign-up")}
         style={{
